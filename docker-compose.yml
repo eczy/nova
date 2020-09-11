@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    environment:
+      - REDMINE_HOST=${REDMINE_HOST}
+
+  certbot:
+    image: certbot/certbot
+    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;"
+    depends_on:
+      - nginx
+      - redmine
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+  redmine:
+    image: redmine:latest
+    restart: always
+    ports:
+      - 8888:3000
+    environment:
+      REDMINE_DB_POSTGRES: redmine_db
+      REDMINE_DB_USERNAME: ${REDMINE_USERNAME}
+      REDMINE_DB_PASSWORD: ${REDMINE_PASSWORD}
+    depends_on:
+      - redmine_db
+      
+  redmine_db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${REDMINE_PASSWORD}
+      POSTGRES_USER: ${REDMINE_USERNAME}
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data

@@ -1,0 +1,27 @@
+server {
+    listen 80;
+    server_name ${REDMINE_HOST};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot/;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name ${REDMINE_HOST};
+
+    ssl_certificate /etc/letsencrypt/live/${REDMINE_HOST}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${REDMINE_HOST}/privkey.pem;
+    proxy_ssl_session_reuse off;
+    proxy_ssl_server_name on;
+
+    location / {
+        proxy_pass http://${REDMINE_HOST}:8888;
+    }
+}
+
