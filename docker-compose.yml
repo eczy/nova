@@ -32,6 +32,8 @@ services:
       REDMINE_DB_POSTGRES: redmine_db
       REDMINE_DB_USERNAME: ${REDMINE_USERNAME}
       REDMINE_DB_PASSWORD: ${REDMINE_PASSWORD}
+    volumes:
+      - ./redmine/files:/usr/src/redmine/files
     depends_on:
       - redmine_db
       
@@ -43,3 +45,18 @@ services:
       POSTGRES_USER: ${REDMINE_USERNAME}
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
+
+  backup:
+    build: ./backup
+    volumes:
+      - ./redmine/files:/data/redmine/files
+      - ./backup/archives:/backup/archives
+    environment:
+      REDMINE_USERNAME: ${REDMINE_USERNAME}
+      REDMINE_PASSWORD: ${REDMINE_PASSWORD}
+
+  s3sync:
+    build: ./s3sync
+    volumes:
+      - ~/.aws:/root/.aws
+      - ./backup/archives:/aws
