@@ -1,4 +1,7 @@
 .env
 certbot
-redmine
+redmine/plugins/*
+redmine/themes/*
+redmine/files/*
+backup/archives/*
 postgres
