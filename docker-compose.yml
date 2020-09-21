@@ -12,6 +12,7 @@ services:
       - ./certbot/www:/var/www/certbot
     environment:
       - REDMINE_HOST=${REDMINE_HOST}
+      - JENKINS_HOST=${JENKINS_HOST}
 
   certbot:
     image: certbot/certbot
@@ -63,3 +64,10 @@ services:
     volumes:
       - ~/.aws:/root/.aws
       - ./backup/archives:/aws
+
+  jenkins:
+    image: jenkins/jenkins
+    volumes:
+      - ./jenkins:/var/jenkins_home
+    ports:
+      - 8881:8080
