@@ -5,4 +5,4 @@ ADD cronjob /cronjob
 ADD s3sync.sh /s3sync.sh
 RUN /usr/bin/crontab /cronjob
 
-ENTRYPOINT crond -n
+ENTRYPOINT crond -ns
