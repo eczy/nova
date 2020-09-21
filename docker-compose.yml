@@ -54,6 +54,7 @@ services:
     build: ./backup
     volumes:
       - ./redmine/files:/data/redmine/files
+      - ./jenkins:/data/jenkins
       - ./backup/archives:/backup/archives
     environment:
       REDMINE_USERNAME: ${REDMINE_USERNAME}

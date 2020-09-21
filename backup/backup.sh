@@ -9,3 +9,4 @@ rsync -a /data/redmine/files /backup/redmine
 
 cd /backup
 tar -czvf /backup/archives/redmine_`date +%Y-%m-%d`.tar.gz redmine
+tar -czvf /backup/archives/jenkins_`date +%Y-%m-%d`.tar.gz jenkins
