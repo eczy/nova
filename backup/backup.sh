@@ -12,3 +12,6 @@ rsync -a /data/jenkins /backup/jenkins
 cd /backup
 tar -czvf /backup/archives/redmine_`date +%Y-%m-%d`.tar.gz redmine
 tar -czvf /backup/archives/jenkins_`date +%Y-%m-%d`.tar.gz jenkins
+
+# Delete backups older than 7 days
+find $(pwd) -mtime +7 -type f -delete
