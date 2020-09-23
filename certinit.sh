@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 source .env
 
 docker run \
@@ -21,6 +20,12 @@ docker run \
     -v $(pwd)/certbot/conf:/etc/letsencrypt \
      certbot/certbot \
      certonly --webroot -w /var/www/certbot -d $JENKINS_HOST --agree-tos --email $CERTBOT_EMAIL --non-interactive
+
+docker run \
+    -v $(pwd)/certbot/www:/var/www/certbot \
+    -v $(pwd)/certbot/conf:/etc/letsencrypt \
+     certbot/certbot \
+     certonly --webroot -w /var/www/certbot -d $OVERLEAF_HOST --agree-tos --email $CERTBOT_EMAIL --non-interactive
 
 docker kill certinit_nginx
 docker rm certinit_nginx
