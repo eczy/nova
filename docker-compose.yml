@@ -2,6 +2,7 @@ version: "3.8"
 services:
 
   nginx:
+    restart: always
     image: nginx:latest
     ports:
       - 80:80
@@ -13,6 +14,7 @@ services:
     environment:
       - REDMINE_HOST=${REDMINE_HOST}
       - JENKINS_HOST=${JENKINS_HOST}
+      - OVERLEAF_HOST=${OVERLEAF_HOST}
 
   certbot:
     image: certbot/certbot
@@ -55,6 +57,8 @@ services:
     volumes:
       - ./redmine/files:/data/redmine/files
       - ./jenkins:/data/jenkins
+      - ./sharelatex/sharelatex:/data/sharelatex/sharelatex
+      - ./sharelatex/redis:/data/sharelatex/redis
       - ./backup/archives:/backup/archives
     environment:
       REDMINE_USERNAME: ${REDMINE_USERNAME}
@@ -72,3 +76,52 @@ services:
       - ./jenkins:/var/jenkins_home
     ports:
       - 8881:8080
+
+  sharelatex:
+    restart: always
+    image: sharelatex/sharelatex
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - 8882:80
+    links:
+      - mongo
+      - redis
+    volumes:
+      - ./sharelatex/sharelatex:/var/lib/sharelatex
+    environment:
+      SHARELATEX_APP_NAME: Overleaf Community Edition
+      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
+      SHARELATEX_REDIS_HOST: redis
+      REDIS_HOST: redis
+      ENABLED_LINKED_FILE_TYPES: 'url,project_file'
+      ENABLE_CONVERSIONS: 'true'
+      EMAIL_CONFIRMATION_DISABLED: 'true'
+
+      # temporary fix for LuaLaTex compiles
+      # see https://github.com/overleaf/overleaf/issues/695
+      TEXMFVAR: /var/lib/sharelatex/tmp/texmf-var
+
+  mongo:
+    restart: always
+    image: mongo
+#    expose:
+#        - 27017
+    volumes:
+        - ./sharelatex/mongo:/data/db
+    healthcheck:
+        test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+        interval: 10s
+        timeout: 10s
+        retries: 5
+
+  redis:
+      restart: always
+      image: redis:5
+#      expose:
+#          - 6379
+      volumes:
+          - ./sharelatex/redis:/data

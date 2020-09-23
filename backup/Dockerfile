@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk add postgresql-client rsync
+RUN apk add postgresql-client rsync mongodb-tools redis
 RUN mkdir -p /backup/redmine
 RUN mkdir -p /backup/archives
 RUN chown -R 1000 /backup
